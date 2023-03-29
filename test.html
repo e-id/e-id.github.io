@@ -7,22 +7,29 @@
       window.addEventListener('load', function() {
         var result = decodeURIComponent(new String(location.hash).substring(1));
         if (result !== '') {
-          window.localStorage.set('e-id-data', result);
+          window.localStorage.setItem('e-id-data', result);
           setTimeout(function() {
             window.close();
           }, 1000);
+        } else {
+          // init
+          window.localStorage.setItem('e-id-data', null);
         }
       });
 
       // getter (caller - localStorage)
       window.addEventListener('storage', function(event) {
         console.log(event);
+        if (event.key === 'e-id-data') {
+          document.getElementById('result').value = event.newValue;
+          event.
+        }
       });
   
     </script>
   </head>
   <body>
-    <a href="e-id://e-id.github.io/test.html#?e-id-hidden=1">Click here to test (using hidden window & localStorage)</a><hr />
+    <a href="e-id://127.0.0.1:8080/test.html?e-id-hidden=1#">Click here to test (using hidden window & localStorage)</a><hr />
     <textarea id="result" style="width: 100%; height: 50%;"></textarea>
   </body>
 </html>
