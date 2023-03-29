@@ -2,4 +2,6 @@
 
 Under construction
 
-[Test](https://e-id.github.io/test.html)
+* [Simple test](https://e-id.github.io/test.html)
+* [e-ID viewer](https://e-id.github.io/viewer)
+
