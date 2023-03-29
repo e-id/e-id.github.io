@@ -10,6 +10,8 @@
           window.localStorage.setItem('e-id-data', result);
           var pretty = JSON.stringify(JSON.parse(result), null, ' ');
           document.getElementById('result').value = pretty;
+          location.hash = '';
+          history.replaceState({}, null, 'https://e-id.github.io/viewer/');
         } else {
           // init
           window.localStorage.setItem('e-id-data', null);
