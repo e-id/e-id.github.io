@@ -1,27 +1,275 @@
 <html>
   <head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <title>e-ID viewer</title>
+    <style content="text/css">
+      .is-borderless th, table.is-borderless td {
+        border-width: 0 !important;
+      }
+      tr.is-bordered th, tr.is-bordered td {
+        border-width: 0 0 1 !important;
+      }
+      .has-border-primary {
+        border-color: #00d1b2 !important;
+      }
+      .centered {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        /* bring your own prefixes */
+        transform: translate(-50%, -50%);
+      }
+      #identity:target, #card:target, #certificates:target {
+        display: flex !important;
+      }
+    </style>
     <script type="text/javascript">
+
+      function display(result) {
+        var eid = null;
+        try { eid = JSON.parse(result); } catch(e) { eid = null; }
+        if (eid === null || typeof eid !== 'object') {
+          return;
+        }
+        console.log(eid);
+        var elements = document.querySelectorAll('[data-eid]');
+        elements.forEach(function (el) {
+          var text = '-';
+          if (el.dataset.eid in eid) {
+            text = eid[el.dataset.eid];
+          } else {
+            text = el.dataset.eid;
+            Object.keys(eid).forEach(function (key) {
+              text = text.replace(`%${key}%`, eid[key]);
+            });
+          }
+          var attr = el.dataset.eidAttr ?? 'value'
+          el.hasAttribute(attr) ? el.setAttribute(attr, text) : el.innerText = text;
+        });
+        window.localStorage.setItem('e-id-data', null);
+      }
+
+      function tab(el) {
+        document.querySelector('.tabs .is-active a')?.classList.remove('has-background-primary', 'has-border-primary');
+        document.querySelector('.tabs .is-active')?.classList.remove('is-active');
+        el.classList.add('is-active');
+        el.querySelector('a').classList.add('has-background-primary', 'has-border-primary');
+      }
 
       // setter
       window.addEventListener('load', function() {
+        document.querySelectorAll('.tabs li').forEach(function (el) {
+          el.addEventListener('click', function() {
+            tab(el)
+          })
+        });
         var result = decodeURIComponent(new String(location.hash).substring(1));
+        if (result === '') {
+          result = 'identity';
+          location.hash = '#' + result;
+        }
         if (result !== '') {
+          var eid = null;
+          try { eid = JSON.parse(result); } catch(e) { eid = null; }
+          if (eid === null || typeof eid !== 'object') {
+            tab(document.querySelector(`a[href$="#${result}"]`).parentNode);
+            return;
+          }
           window.localStorage.setItem('e-id-data', result);
-          var pretty = JSON.stringify(JSON.parse(result), null, ' ');
-          document.getElementById('result').value = pretty;
-          location.hash = '';
-          history.replaceState({}, null, 'https://e-id.github.io/viewer/');
+          var url = new URL(location.href);
+          if (url.searchParams.has('e-id-hidden') && url.searchParams.get('e-id-hidden') === '1' ||
+          url.searchParams.has('e-id-app') && url.searchParams.get('e-id-app') === '1') {
+            document.getElementById('content').classList.add('is-hidden');
+            document.getElementById('loading').classList.remove('is-hidden');
+            var w = 512;
+            var h = 512;
+            window.resizeTo(w, h)
+            var left = (screen.width / 2) - (w/2);
+            var top = (screen.height / 2) - (h/2);
+            window.moveTo(left, top);
+            setTimeout(function() {
+              window.close();
+              document.getElementById('loading').classList.add('is-hidden');
+              document.getElementById('close').classList.remove('is-hidden');
+            }, 2000);
+          } else {
+            display(result);
+            location.hash = '';
+            history.replaceState({}, null, 'https://e-id.github.io/viewer/');
+          }
         } else {
-          // init
           window.localStorage.setItem('e-id-data', null);
+        }
+      });
+
+      // getter (caller - localStorage)
+      window.addEventListener('storage', function(event) {
+        if (event.key === 'e-id-data') {
+          display(event.newValue);
         }
       });
 
     </script>
   </head>
   <body>
-    <a href="e-id://e-id.github.io/viewer?e-id-hidden=1&e-id-include=*#">Click here to read card</a><hr />
-    <textarea id="result" style="width: 100%; height: 50%;"></textarea>
+    <div class="container">
+      <div id="content" class="content">
+        <div class="tabs is-toggle is-toggle-rounded is-centered">
+          <ul class="ml-0">
+            <li><a href="#identity">Identity</a></li>
+            <li><a href="#card">Card</a></li>
+            <li><a href="#certificates">Certificates</a></li>
+            <li><a href="#log">Log</a></li>
+          </ul>
+        </div>
+        <div id="identity" class="columns is-centered is-hidden">
+          <div class="column is-7-fullhd is-9-widescreen is-10-desktop is-12-tablet">
+            <div class="card">
+              <header class="card-header">
+                <p class="card-header-title is-centered">
+                  IDENTITY CARD
+                </p>
+              </header>
+              <div class="card-content">
+                <div class="content">
+                  <div class="media is-hidden-tablet">
+                    <div class="media-left">
+                      <figure class="image">
+                        <img src="https://placehold.co/140x200" data-eid="data:image/jpeg;base64,%photo_file%" data-eid-attr="src" />
+                      </figure>
+                    </div>
+                    <div class="media-content">
+                      <p class="title is-4" data-eid="surname"></p>
+                      <p class="subtitle is-6" data-eid="%firstnames% %first_letter_of_third_given_name%"></p>
+                    </div>
+                  </div>
+                  <div class="columns is-vcentered is-mobile">
+                    <div class="column is-narrow is-hidden-mobile">
+                      <figure class="image is-140by200">
+                        <img src="https://placehold.co/140x200" data-eid="data:image/jpeg;base64,%photo_file%"  data-eid-attr="src" />
+                      </figure>
+                    </div>
+                    <div class="column">
+                      <table class="table is-borderless">
+                        <tbody>
+                          <tr class="is-hidden-mobile">
+                            <th style="width: 200px;">Last name</th>
+                            <td data-eid="surname"></td>
+                          </tr>
+                          <tr class="is-hidden-mobile">
+                            <th>First names</th>
+                            <td data-eid="%firstnames% %first_letter_of_third_given_name%"></td>
+                          </tr>
+                          <tr>
+                            <th>Place of birth</th>
+                            <td data-eid="location_of_birth"></td>
+                          </tr>
+                          <tr>
+                            <th>Date of birth</th>
+                            <td data-eid="date_of_birth"></td>
+                          </tr>
+                          <tr>
+                            <th>Gender</th>
+                            <td data-eid="gender"></td>
+                          </tr>
+                          <tr>
+                            <th>National number</th>
+                            <td data-eid="national_number"></td>
+                          </tr>
+                          <tr>
+                            <th>Nobility title</th>
+                            <td data-eid="nobility"></td>
+                          </tr>
+                          <tr class="is-bordered">
+                            <th>Special status</th>
+                            <td data-eid="special_status"></td>
+                          </tr>
+                          <tr>
+                            <th>Street</th>
+                            <td data-eid="address_street_and_number"></td>
+                          </tr>
+                          <tr>
+                            <th>Zip code</th>
+                            <td data-eid="address_zip"></td>
+                          </tr>
+                          <tr class="is-bordered">
+                            <th>City</th>
+                            <td data-eid="address_municipality"></td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                  <p class="buttons is-centered">
+                    <a class="button is-large is-rounded is-primary" href="e-id://e-id.github.io/viewer?e-id-app=1&e-id-include=*#">
+                      <span class="icon is-medium">
+                        <i class="fa-solid fa-id-card"></i>
+                      </span>
+                      <span>Read card</span>
+                    </a>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="card" class="columns is-centered is-hidden">
+          <div class="column is-7-fullhd is-9-widescreen is-10-desktop is-12-tablet">
+            <div class="card">
+              <div class="card-content">
+                <div class="content">
+                  <div class="columns is-vcentered is-mobile">
+                    <div class="column">
+                      <table class="table is-borderless">
+                        <tbody>
+                          <tr>
+                            <th>Chip version</th>
+                            <td data-eid="carddata_appl_version"></td>
+                          </tr>
+                          <tr>
+                            <th>Card number</th>
+                            <td data-eid="card_number"></td>
+                          </tr>
+                          <tr>
+                            <th>Place of issue</th>
+                            <td data-eid="issuing_municipality"></td>
+                          </tr>
+                          <tr>
+                            <th>Chip number</th>
+                            <td data-eid="chip_number"></td>
+                          </tr>
+                          <tr>
+                            <th>Validity begin</th>
+                            <td data-eid="validity_begin_date"></td>
+                          </tr>
+                          <tr>
+                            <th>Validity end</th>
+                            <td data-eid="validity_end_date"></td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="certificates" class="columns is-centered is-hidden">
+          <div class="column is-7-fullhd is-9-widescreen is-10-desktop is-12-tablet">
+            <div class="card">
+              <div class="card-content">
+                <div class="content">
+                  <a href="#" target="_blank" data-eid="https://lapo.it/asn1js/#%cert_rn_file%" data-eid-attr="href">RRN</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button id="loading" class="button is-large is-rounded is-primary is-loading centered is-hidden">Loading...</button>
+      <a id="close" href="#" onclick="window.close();" class="button is-rounded centered is-hidden">You can close this window</a>
+    </div>
   </body>
 </html>

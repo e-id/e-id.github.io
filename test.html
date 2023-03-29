@@ -6,10 +6,11 @@
       // setter (hidden window)
       window.addEventListener('load', function() {
         var result = decodeURIComponent(new String(location.hash).substring(1));
+        console.log(result);
         if (result !== '') {
-          window.localStorage.setItem('e-id-data', result);
           var url = new URL(location.href);
           if (url.searchParams.has('e-id-hidden') && url.searchParams.get('e-id-hidden') === '1') {
+            window.localStorage.setItem('e-id-data', result);
             setTimeout(function() {
               window.close();
             }, 1000);
@@ -26,11 +27,12 @@
       // getter (caller - localStorage)
       window.addEventListener('storage', function(event) {
         if (event.key === 'e-id-data') {
+          console.log(event.newValue);
           var pretty = JSON.stringify(JSON.parse(event.newValue), null, ' ');
           document.getElementById('result').value = pretty;
         }
       });
-  
+
     </script>
   </head>
   <body>
