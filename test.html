@@ -16,7 +16,7 @@
             }, 1000);
           } else {
             var pretty = JSON.stringify(JSON.parse(result), null, ' ');
-            document.getElementById('result').value = pretty;
+            document.getElementById('result').innerText = pretty;
           }
         } else {
           // init
@@ -29,14 +29,14 @@
         if (event.key === 'e-id-data') {
           console.log(event.newValue);
           var pretty = JSON.stringify(JSON.parse(event.newValue), null, ' ');
-          document.getElementById('result').value = pretty;
+          document.getElementById('result').innerText = pretty;
         }
       });
 
     </script>
   </head>
   <body>
-    <a href="e-id://e-id.github.io/test.html?e-id-hidden=1#">Click here to test (using hidden window & localStorage)</a><hr />
-    <textarea id="result" style="width: 100%; height: 50%;"></textarea>
+    <a href="e-id://e-id.github.io/test.html?e-id-hidden=1&e-id-include=*#">Click here to test (using hidden window & localStorage)</a><hr />
+    <pre id="result" style="background-color: lightgray;"></pre>
   </body>
 </html>
