@@ -2,7 +2,7 @@
   <head>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <title>e-ID viewer</title>
+    <title>Open e-ID viewer v0.0.1</title>
     <style content="text/css">
       .is-borderless th, table.is-borderless td {
         border-width: 0 !important;
@@ -22,6 +22,71 @@
       }
       #identity:target, #card:target, #certificates:target {
         display: flex !important;
+      }
+      @media print {
+        @page {
+          size:  auto;   /* auto is the initial value */
+          margin: 0 15mm;  /* this affects the margin in the printer settings */
+        }
+        html
+        {
+            background-color: #FFFFFF;
+            margin: 0px;  /* this affects the margin on the html before sending to printer */
+        }
+        body
+        {
+            border: solid 0px silver ;
+            margin: 15mm 0; /* margin you want for the content */
+        }
+        .logo {
+          display: block !important;
+          position: fixed;
+          top: 15mm;
+          left: 0px;
+        }
+        .logo > img {
+          height: 150px;
+        }
+        .card, .card-header {
+          border-radius: 0;
+          box-shadow: none;
+          border: none;
+          border-bottom: solid 2px silver !important;
+        }
+        .card-content {
+          padding: 0;
+        }
+        .tabs {
+          display: none;
+        }
+        .content > div.columns {
+          display: block !important;
+          width: 100%;
+        }
+        #identity .card-header {
+          height: 160px;
+        }
+        #certificates {
+          display: none !important;
+        }
+        #log .table {
+          display: block !important;
+        }
+        .image.is-140by200 {
+          position: fixed;
+          width: 105px;
+          top: 15mm;
+          right: 0;
+        }
+        .button {
+          display: none;
+        }
+        [data-print="date"]::before {
+          content: attr(data-date);
+        }
+        [data-print="app"]::before {
+          content: attr(data-app);
+        }
       }
     </style>
     <script type="text/javascript">
@@ -108,6 +173,11 @@
         if (event.key === 'e-id-data') {
           display(event.newValue);
         }
+      });
+
+      window.addEventListener('blur', function(event) {
+        document.querySelector('[data-print="date"]').setAttribute('data-date', new Date().toLocaleDateString('fr-FR', {hour: "numeric", minute: "numeric", second: "numeric"}));
+        document.querySelector('[data-print="app"]').setAttribute('data-app', document.title + ' (' + navigator.platform + ')');
       });
 
     </script>
@@ -282,9 +352,38 @@
             </div>
           </div>
         </div>
+        <div id="log" class="columns is-centered is-hidden">
+          <div class="column is-7-fullhd is-9-widescreen is-10-desktop is-12-tablet">
+            <div class="card">
+              <div class="card-content">
+                <div class="content">
+                  <div class="columns is-vcentered is-mobile">
+                    <div class="column">
+                      <table class="table is-borderless is-hidden">
+                        <tbody>
+                          <tr>
+                            <th>Printed</th>
+                            <td><span data-date="" data-print="date"></span></td>
+                          </tr>
+                          <tr>
+                            <th>Printed by</th>
+                            <td><span data-app="" data-print="app"></span></td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       <button id="loading" class="button is-large is-rounded is-primary is-loading centered is-hidden">Loading...</button>
       <a id="close" href="#" onclick="window.close();" class="button is-rounded centered is-hidden">You can close this window</a>
     </div>
+    <figure class="logo is-hidden">
+      <img src="logo.png" />
+    </figure>
   </body>
 </html>
