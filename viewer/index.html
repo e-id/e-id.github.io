@@ -96,6 +96,44 @@
     </style>
     <script type="text/javascript">
 
+      function share(data) {
+        const img = document.getElementById('photo');
+        fetch(img.src).then(function(res) {
+          return res.blob();
+        }).then(function(blob) {
+          const file = new File([blob], 'Photo.jpg', blob);
+          console.log(file);
+          var shareData = {
+            title: document.title,
+            url: location.href,
+            text: data,
+            files: [
+              file
+            ]
+          };
+          if (navigator.share) {
+            navigator.share(shareData).then(() => {
+              console.log('Shared');
+            }).catch(console.error);
+          } else {
+            mailto(data);
+          }
+        });
+      }
+
+      function mailto(data) {
+        location = 'mailto:?body=' + encodeURIComponent(data);
+      }
+
+      function download(data) {
+        var a = document.createElement('a');
+        a.setAttribute('download', 'e-ID.txt');
+        a.setAttribute('href', 'data:text/plain;,' + encodeURIComponent(data));
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+
       function display(result) {
         var eid = null;
         try { eid = JSON.parse(result); } catch(e) { eid = null; }
@@ -225,7 +263,7 @@
                   <div class="columns is-vcentered is-mobile">
                     <div class="column is-narrow is-hidden-mobile">
                       <figure class="image is-140by200">
-                        <img src="https://placehold.co/140x200" data-eid="data:image/jpeg;base64,%photo_file%"  data-eid-attr="src" />
+                        <img id="photo" src="https://placehold.co/140x200" data-eid="data:image/jpeg;base64,%photo_file%"  data-eid-attr="src" />
                       </figure>
                     </div>
                     <div class="column">
@@ -287,6 +325,33 @@
                       <span>Read card</span>
                     </a>
                   </p>
+                  <div style="text-align: center">
+                    <div class="dropdown is-up">
+                      <div class="dropdown-trigger">
+                        <button class="button is-rounded" aria-haspopup="true" aria-controls="dropdown-menu7"
+                        onclick="this.parentNode.parentNode.classList.toggle('is-active')">
+                          <span>Share</span>
+                          <span class="icon is-small">
+                            <i class="fas fa-share-nodes" aria-hidden="true"></i>
+                          </span>
+                        </button>
+                      </div>
+                      <div class="dropdown-menu" id="dropdown-menu7" role="menu" style="text-align: left;">
+                        <div class="dropdown-content">
+                          <a href="javascript:mailto(document.body.innerText);" class="dropdown-item">
+                            E-mail
+                          </a>
+                          <a href="javascript:download(document.body.innerText);" class="dropdown-item">
+                            Download
+                          </a>
+                          <hr class="dropdown-divider">
+                          <a href="javascript:share(document.body.innerText)" class="dropdown-item">
+                            More...
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
