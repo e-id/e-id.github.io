@@ -20,6 +20,8 @@ The e-ID viewer is a full-featured web app with the following features:
 
 ![](shots/viewer-identity.png)
 
+[More screenshots](https://github.com/e-id/e-id.github.io/tree/main/shots)
+
 The viewer uses:
 
 * Bulma https://bulma.io/

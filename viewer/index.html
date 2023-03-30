@@ -103,6 +103,9 @@
           return;
         }
         console.log(eid);
+        if (eid.cancel || 'error' in eid) {
+          return;
+        }
         var elements = document.querySelectorAll('[data-eid]');
         elements.forEach(function (el) {
           var text = '-';
