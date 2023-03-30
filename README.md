@@ -18,6 +18,8 @@ The e-ID viewer is a full-featured web app with the following features:
 * Read card content (data, photo & certificates)
 * Print the card content (print from browser)
 
+![](shots/viewer-identity.png)
+
 The viewer uses:
 
 * Bulma https://bulma.io/
