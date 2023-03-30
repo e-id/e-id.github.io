@@ -1,5 +1,6 @@
 <html>
   <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <title>Open e-ID viewer v0.0.1</title>
@@ -20,8 +21,12 @@
         /* bring your own prefixes */
         transform: translate(-50%, -50%);
       }
-      #identity:target, #card:target, #certificates:target {
+      #identity:target, #card:target, #certificates:target, #log:target {
         display: flex !important;
+      }
+      aside.menu ul {
+        list-style: none;
+        margin-left: 0px;
       }
       @media print {
         @page {
@@ -160,7 +165,7 @@
             }, 2000);
           } else {
             display(result);
-            location.hash = '';
+            location.hash = '#identity';
             history.replaceState({}, null, 'https://e-id.github.io/viewer/');
           }
         } else {
@@ -336,15 +341,15 @@
                       Root
                     </p>
                     <ul class="menu-list">
-                      <li><a href="#" target="_blank" data-eid="https://lapo.it/asn1js/#%cert_ca_file%" data-eid-attr="href">CA</a></li>
-                      <li><a href="#" target="_blank" data-eid="https://lapo.it/asn1js/#%cert_rn_file%" data-eid-attr="href">RRN</a></li>
+                      <li><a href="javascript:;" data-eid="javascript:window.open('https://lapo.it/asn1js/#%cert_ca_file%');" data-eid-attr="href">CA</a></li>
+                      <li><a href="javascript:;" data-eid="javascript:window.open('https://lapo.it/asn1js/#%cert_rn_file%');" data-eid-attr="href">RRN</a></li>
                     </ul>
                     <p class="menu-label">
                       Citizen
                     </p>
                     <ul class="menu-list">
-                      <li><a href="#" target="_blank" data-eid="https://lapo.it/asn1js/#%cert_authentication_file%" data-eid-attr="href">Authentication</a></li>
-                      <li><a href="#" target="_blank" data-eid="https://lapo.it/asn1js/#%cert_signature_file%" data-eid-attr="href">Signature</a></li>
+                      <li><a href="javascript:;" data-eid="javascript:window.open('https://lapo.it/asn1js/#%cert_authentication_file%');" data-eid-attr="href">Authentication</a></li>
+                      <li><a href="javascript:;" data-eid="javascript:window.open('https://lapo.it/asn1js/#%cert_signature_file%');" data-eid-attr="href">Signature</a></li>
                     </ul>
                   </aside>
                 </div>
@@ -357,6 +362,7 @@
             <div class="card">
               <div class="card-content">
                 <div class="content">
+                  <pre data-eid="log_file"></pre>
                   <div class="columns is-vcentered is-mobile">
                     <div class="column">
                       <table class="table is-borderless is-hidden">
