@@ -144,6 +144,7 @@
         if (eid.cancel || 'error' in eid) {
           return;
         }
+        window.eIdData = eid;
         var elements = document.querySelectorAll('[data-eid]');
         elements.forEach(function (el) {
           var text = '-';
@@ -338,14 +339,14 @@
                       </div>
                       <div class="dropdown-menu" id="dropdown-menu7" role="menu" style="text-align: left;">
                         <div class="dropdown-content">
-                          <a href="javascript:mailto(document.body.innerText);" class="dropdown-item">
+                          <a href="javascript:mailto(window.eIdData);" class="dropdown-item">
                             E-mail
                           </a>
-                          <a href="javascript:download(document.body.innerText);" class="dropdown-item">
+                          <a href="javascript:download(window.eIdData);" class="dropdown-item">
                             Download
                           </a>
                           <hr class="dropdown-divider">
-                          <a href="javascript:share(document.body.innerText)" class="dropdown-item">
+                          <a href="javascript:share(window.eIdData)" class="dropdown-item">
                             More...
                           </a>
                         </div>
