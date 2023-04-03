@@ -227,6 +227,45 @@
         document.querySelector('[data-print="app"]').setAttribute('data-app', document.title + ' (' + navigator.platform + ')');
       });
 
+      document.addEventListener('DOMContentLoaded', function () {
+        // Dropdowns
+
+        var $dropdowns = getAll('.dropdown:not(.is-hoverable)');
+
+        if ($dropdowns.length > 0) {
+          $dropdowns.forEach(function ($el) {
+            $el.addEventListener('click', function (event) {
+              event.stopPropagation();
+              $el.classList.toggle('is-active');
+            });
+          });
+
+          document.addEventListener('click', function (event) {
+            closeDropdowns();
+          });
+        }
+
+        function closeDropdowns() {
+          $dropdowns.forEach(function ($el) {
+            $el.classList.remove('is-active');
+          });
+        }
+
+        // Close dropdowns if ESC pressed
+        document.addEventListener('keydown', function (event) {
+          var e = event || window.event;
+          if (e.keyCode === 27) {
+            closeDropdowns();
+          }
+        });
+
+        // Functions
+
+        function getAll(selector) {
+          return Array.prototype.slice.call(document.querySelectorAll(selector), 0);
+        }
+      });
+
     </script>
   </head>
   <body>
@@ -329,8 +368,7 @@
                   <div style="text-align: center">
                     <div class="dropdown is-up">
                       <div class="dropdown-trigger">
-                        <button class="button is-rounded" aria-haspopup="true" aria-controls="dropdown-menu7"
-                        onclick="this.parentNode.parentNode.classList.toggle('is-active')">
+                        <button class="button is-rounded" aria-haspopup="true" aria-controls="dropdown-menu7">
                           <span>Share</span>
                           <span class="icon is-small">
                             <i class="fas fa-share-nodes" aria-hidden="true"></i>
@@ -346,7 +384,7 @@
                             Download
                           </a>
                           <hr class="dropdown-divider">
-                          <a href="javascript:share(window.eIdData)" class="dropdown-item">
+                          <a href="javascript:share(window.eIdData);" class="dropdown-item">
                             More...
                           </a>
                         </div>
