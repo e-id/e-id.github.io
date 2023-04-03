@@ -25,4 +25,3 @@ The e-ID viewer is a full-featured web app with the following features:
 The viewer uses:
 
 * Bulma https://bulma.io/
-* Fontawesome https://fontawesome.com/
