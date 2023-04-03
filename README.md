@@ -5,7 +5,7 @@ Under construction
 * [Simple test](https://e-id.github.io/test.html)
 * [Open e-ID viewer](https://e-id.github.io/viewer)
 
-## Test
+## Simple test
 
 The is a simple HTML page calling the app and displaying the raw result.
 
