@@ -95,17 +95,18 @@
     </style>
     <script type="text/javascript">
 
-      function share(data) {
+      function share() {
         const img = document.getElementById('photo');
         fetch(img.src).then(function(res) {
           return res.blob();
         }).then(function(blob) {
           const file = new File([blob], 'Photo.jpg', blob);
           console.log(file);
+          var json = JSON.stringify(window.eIdData, null, ' ');
           var shareData = {
             title: document.title,
             url: location.href,
-            text: data,
+            text: json,
             files: [
               file
             ]
@@ -115,19 +116,21 @@
               console.log('Shared');
             }).catch(console.error);
           } else {
-            mailto(data);
+            mailto();
           }
         });
       }
 
-      function mailto(data) {
-        location = 'mailto:?body=' + encodeURIComponent(data);
+      function mailto() {
+        var json = JSON.stringify(window.eIdData, null, ' ');
+        location = 'mailto:?body=' + encodeURIComponent(json);
       }
 
-      function download(data) {
+      function download() {
+        var json = JSON.stringify(window.eIdData, null, ' ');
         var a = document.createElement('a');
         a.setAttribute('download', 'e-ID.txt');
-        a.setAttribute('href', 'data:text/plain;,' + encodeURIComponent(data));
+        a.setAttribute('href', 'data:text/plain;,' + encodeURIComponent(json));
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -382,14 +385,14 @@
                       </div>
                       <div class="dropdown-menu" id="dropdown-menu7" role="menu" style="text-align: left;">
                         <div class="dropdown-content">
-                          <a href="javascript:mailto(window.eIdData);" class="dropdown-item">
+                          <a href="javascript:mailto();" class="dropdown-item">
                             E-mail
                           </a>
-                          <a href="javascript:download(window.eIdData);" class="dropdown-item">
+                          <a href="javascript:download();" class="dropdown-item">
                             Download
                           </a>
                           <hr class="dropdown-divider">
-                          <a href="javascript:share(window.eIdData);" class="dropdown-item">
+                          <a href="javascript:share();" class="dropdown-item">
                             More...
                           </a>
                         </div>
