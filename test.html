@@ -1,42 +1,18 @@
 <html>
   <head>
     <title>e-ID Test</title>
+    <script type="text/javascript" src="https://e-id.github.io/open-eid-helper.js"></script>
     <script type="text/javascript">
 
-      // setter (hidden window)
-      window.addEventListener('load', function() {
-        var result = decodeURIComponent(new String(location.hash).substring(1));
-        console.log(result);
-        if (result !== '') {
-          var url = new URL(location.href);
-          if (url.searchParams.has('e-id-hidden') && url.searchParams.get('e-id-hidden') === '1') {
-            window.localStorage.setItem('e-id-data', result);
-            setTimeout(function() {
-              window.close();
-            }, 1000);
-          } else {
-            var pretty = JSON.stringify(JSON.parse(result), null, ' ');
-            document.getElementById('result').innerText = pretty;
-          }
-        } else {
-          // init
-          window.localStorage.setItem('e-id-data', null);
-        }
-      });
-
-      // getter (caller - localStorage)
-      window.addEventListener('storage', function(event) {
-        if (event.key === 'e-id-data') {
-          console.log(event.newValue);
-          var pretty = JSON.stringify(JSON.parse(event.newValue), null, ' ');
-          document.getElementById('result').innerText = pretty;
-        }
-      });
+      window.eIdTest = function(result) {
+        var pretty = JSON.stringify(result, null, ' ');
+        document.getElementById('result').innerText = pretty;
+      }
 
     </script>
   </head>
   <body>
-    <a href="e-id://e-id.github.io/test.html?e-id-hidden=1&e-id-include=*#">Click here to test (using hidden window & localStorage)</a><hr />
+    <a href="e-id://#" data-e-id-hidden="1" data-e-id-include="*" data-e-id-callback="eIdTest">Click here to test (using hidden window & localStorage)</a><hr />
     <pre id="result" style="background-color: lightgray;"></pre>
   </body>
 </html>
