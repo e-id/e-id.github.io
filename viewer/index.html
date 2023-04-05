@@ -2,7 +2,7 @@
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css" />
-    <script type="text/javascript" src="../open-eid-helper.js"></script>
+    <script type="text/javascript" src="https://e-id.github.io/open-eid-helper.js"></script>
     <title>Open e-ID viewer v0.0.1</title>
     <style content="text/css">
       .is-borderless th, table.is-borderless td {
@@ -137,9 +137,7 @@
         document.body.removeChild(a);
       }
 
-      function display(result) {
-        var eid = null;
-        try { eid = JSON.parse(result); } catch(e) { eid = null; }
+      window.eIdViewerDisplay = function(eid) {
         if (eid === null || typeof eid !== 'object') {
           return;
         }
@@ -175,57 +173,12 @@
         }, 100);
       }
 
-      // setter
       window.addEventListener('load', function() {
         document.querySelectorAll('.tabs li').forEach(function (el) {
           el.addEventListener('click', function() {
             tab(el)
           })
         });
-        var result = decodeURIComponent(new String(location.hash).substring(1));
-        if (result === '') {
-          result = 'identity';
-          location.hash = '#' + result;
-        }
-        if (result !== '') {
-          var eid = null;
-          try { eid = JSON.parse(result); } catch(e) { eid = null; }
-          if (eid === null || typeof eid !== 'object') {
-            tab(document.querySelector(`a[href$="#${result}"]`).parentNode);
-            return;
-          }
-          window.localStorage.setItem('e-id-data', result);
-          var url = new URL(location.href);
-          if (url.searchParams.has('e-id-hidden') && url.searchParams.get('e-id-hidden') === '1' ||
-          url.searchParams.has('e-id-app') && url.searchParams.get('e-id-app') === '1') {
-            document.getElementById('content').classList.add('is-hidden');
-            document.getElementById('loading').classList.remove('is-hidden');
-            var w = 512;
-            var h = 512;
-            window.resizeTo(w, h)
-            var left = (screen.width / 2) - (w/2);
-            var top = (screen.height / 2) - (h/2);
-            window.moveTo(left, top);
-            setTimeout(function() {
-              window.close();
-              document.getElementById('loading').classList.add('is-hidden');
-              document.getElementById('close').classList.remove('is-hidden');
-            }, 2000);
-          } else {
-            display(result);
-            location.hash = '#identity';
-            history.replaceState({}, null, 'https://e-id.github.io/viewer/');
-          }
-        } else {
-          window.localStorage.setItem('e-id-data', null);
-        }
-      });
-
-      // getter (caller - localStorage)
-      window.addEventListener('storage', function(event) {
-        if (event.key === 'e-id-data') {
-          display(event.newValue);
-        }
       });
 
       window.addEventListener('blur', function(event) {
@@ -364,7 +317,7 @@
                     </div>
                   </div>
                   <p class="buttons is-centered">
-                    <a class="button is-large is-rounded is-primary" href="e-id://#" data-e-id-app="1" data-e-id-include="*">
+                    <a class="button is-large is-rounded is-primary" href="e-id://#" data-e-id-app="1" data-e-id-include="*" data-e-id-callback="eIdViewerDisplay">
                       <span class="icon is-medium" style="filter: invert(1)">
                         <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24">
                           <path d="M9.715 12c1.151 0 2-.849 2-2s-.849-2-2-2-2 .849-2 2 .848 2 2 2z"/>
