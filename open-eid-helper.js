@@ -45,8 +45,24 @@ window.addEventListener('load', function() {
     var url = new URL(location.href);
     if (url.searchParams.has('e-id-hidden') && url.searchParams.get('e-id-hidden') === '1' ||
     url.searchParams.has('e-id-app') && url.searchParams.get('e-id-app') === '1') {
-      document.getElementById('content').classList.add('is-hidden');
-      document.getElementById('loading').classList.remove('is-hidden');
+      document.body.innerText = '';
+      if (document.querySelectorAll('head > link[href$="bulma.min.css"]') === 0) {
+        var link = document.createElement('link');
+        link.setAttribute('rel', 'stylesheet');
+        link.setAttribute('href', 'https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css');
+        document.getElementsByTagName('head')[0].appendChild(link);
+      }
+      var button = document.createElement('button');
+      button.setAttribute('class', 'button is-large is-rounded is-primary is-loading');
+      button.setAttribute('style',  'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);');
+      button.innerText = 'Loading...';
+      document.body.appendChild(button);
+      var close = document.createElement('a');
+      close.setAttribute('class', 'button is-rounded centered is-hidden');
+      close.setAttribute('onclick', 'window.close()');
+      close.setAttribute('style',  'position: fixed; margin-top: 100px; top: 50%; left: 50%; transform: translate(-50%, -50%);');
+      close.innerText = 'You can close this window';
+      document.body.appendChild(close);
       var w = 512;
       var h = 512;
       window.resizeTo(w, h)
@@ -55,8 +71,6 @@ window.addEventListener('load', function() {
       window.moveTo(left, top);
       setTimeout(function() {
         window.close();
-        document.getElementById('loading').classList.add('is-hidden');
-        document.getElementById('close').classList.remove('is-hidden');
       }, 2000);
     } else {
       if (url.searchParams.has('e-id-callback')) {

@@ -179,6 +179,11 @@
             tab(el)
           })
         });
+        var result = decodeURIComponent(new String(location.hash).substring(1));
+        if (result === '') {
+          result = 'identity';
+          location.hash = '#' + result;
+        }
       });
 
       window.addEventListener('blur', function(event) {
@@ -457,8 +462,6 @@
           </div>
         </div>
       </div>
-      <button id="loading" class="button is-large is-rounded is-primary is-loading centered is-hidden">Loading...</button>
-      <a id="close" href="#" onclick="window.close();" class="button is-rounded centered is-hidden">You can close this window</a>
     </div>
     <figure class="logo is-hidden">
       <img src="logo.png" />
