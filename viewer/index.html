@@ -169,6 +169,9 @@
         document.querySelector('.tabs .is-active')?.classList.remove('is-active');
         el.classList.add('is-active');
         el.querySelector('a').classList.add('has-background-primary', 'has-border-primary');
+        setTimeout(function() {
+          document.body.scrollTop = 0;
+        }, 100);
       }
 
       // setter
