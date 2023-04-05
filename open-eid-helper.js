@@ -46,9 +46,10 @@ window.addEventListener('load', function() {
     if (url.searchParams.has('e-id-hidden') && url.searchParams.get('e-id-hidden') === '1' ||
     url.searchParams.has('e-id-app') && url.searchParams.get('e-id-app') === '1') {
       document.body.innerText = '';
-      if (document.querySelectorAll('head > link[href$="bulma.min.css"]') === 0) {
+      if (document.querySelectorAll('head > link[href$="bulma.min.css"]').length === 0) {
         var link = document.createElement('link');
         link.setAttribute('rel', 'stylesheet');
+        link.setAttribute('type', 'text/css');
         link.setAttribute('href', 'https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css');
         document.getElementsByTagName('head')[0].appendChild(link);
       }
@@ -58,7 +59,7 @@ window.addEventListener('load', function() {
       button.innerText = 'Loading...';
       document.body.appendChild(button);
       var close = document.createElement('a');
-      close.setAttribute('class', 'button is-rounded centered is-hidden');
+      close.setAttribute('class', 'button is-rounded centered');
       close.setAttribute('onclick', 'window.close()');
       close.setAttribute('style',  'position: fixed; margin-top: 100px; top: 50%; left: 50%; transform: translate(-50%, -50%);');
       close.innerText = 'You can close this window';
@@ -91,6 +92,7 @@ window.addEventListener('storage', function(event) {
       callback.callback(JSON.parse(event.newValue));
       delete window.openEidHelperCallbacks[index];
     })
+    window.focus();
   }
 });
 
