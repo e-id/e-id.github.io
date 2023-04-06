@@ -168,9 +168,6 @@
         document.querySelector('.tabs .is-active')?.classList.remove('is-active');
         el.classList.add('is-active');
         el.querySelector('a').classList.add('has-background-primary', 'has-border-primary');
-        setTimeout(function() {
-          document.body.scrollTop = 0;
-        }, 100);
       }
 
       window.addEventListener('load', function() {
@@ -183,6 +180,7 @@
         if (result === '') {
           result = 'identity';
           location.hash = '#' + result;
+          tab(document.querySelector('[href]="#identity"'));
         }
       });
 
@@ -233,16 +231,8 @@
     </script>
   </head>
   <body>
-    <div class="container">
-      <div id="content" class="content">
-        <div class="tabs is-toggle is-toggle-rounded is-centered">
-          <ul class="ml-0">
-            <li><a href="#identity">Identity</a></li>
-            <li><a href="#card">Card</a></li>
-            <li><a href="#certificates">Certificates</a></li>
-            <li><a href="#log">Log</a></li>
-          </ul>
-        </div>
+    <div class="container pt-4">
+      <div id="content" class="content mt-6">
         <div id="identity" class="columns is-centered is-hidden">
           <div class="column is-7-fullhd is-9-widescreen is-10-desktop is-12-tablet">
             <div class="card">
@@ -253,19 +243,8 @@
               </header>
               <div class="card-content">
                 <div class="content">
-                  <div class="media is-hidden-tablet">
-                    <div class="media-left">
-                      <figure class="image">
-                        <img src="https://placehold.co/140x200" data-eid="data:image/jpeg;base64,%photo_file%" data-eid-attr="src" />
-                      </figure>
-                    </div>
-                    <div class="media-content">
-                      <p class="title is-4" data-eid="surname"></p>
-                      <p class="subtitle is-6" data-eid="%firstnames% %first_letter_of_third_given_name%"></p>
-                    </div>
-                  </div>
-                  <div class="columns is-vcentered is-mobile">
-                    <div class="column is-narrow is-hidden-mobile">
+                  <div class="columns is-vcentered">
+                    <div class="column is-narrow">
                       <figure class="image is-140by200">
                         <img id="photo" src="https://placehold.co/140x200" data-eid="data:image/jpeg;base64,%photo_file%"  data-eid-attr="src" />
                       </figure>
@@ -273,11 +252,11 @@
                     <div class="column">
                       <table class="table is-borderless">
                         <tbody>
-                          <tr class="is-hidden-mobile">
+                          <tr>
                             <th style="width: 200px;">Last name</th>
                             <td data-eid="surname"></td>
                           </tr>
-                          <tr class="is-hidden-mobile">
+                          <tr>
                             <th>First names</th>
                             <td data-eid="%firstnames% %first_letter_of_third_given_name%"></td>
                           </tr>
@@ -461,6 +440,14 @@
             </div>
           </div>
         </div>
+      </div>
+      <div class="tabs is-toggle is-toggle-rounded mt-2 has-background-white" style="position: fixed; top: 0; left: 50%; transform: translate(-50%, 0);">
+        <ul class="ml-0">
+          <li><a href="#identity">Identity</a></li>
+          <li><a href="#card">Card</a></li>
+          <li><a href="#certificates">Certificates</a></li>
+          <li><a href="#log">Log</a></li>
+        </ul>
       </div>
     </div>
     <figure class="logo is-hidden">
