@@ -97,7 +97,7 @@
     </style>
     <script type="text/javascript">
 
-      window.eIdData = { now: new Date().getTime() };
+      window.eIdData = { surname: 'Doe', firstnames: 'John' };
       window.jsonpCallbacks = {};
 
       function share() {
@@ -174,6 +174,25 @@
               console.log(result);
               if (result.this === 'succeeded') {
                 document.getElementById('qr').src = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + result.with.thing;
+                var interval = setInterval(function() {
+                  jsonp('https://dweet.io/get/latest/dweet/for/' + result.with.thing, {}, function (result) {
+                    var self = this;
+                    Object.keys(window.jsonpCallbacks).forEach(function(id) {
+                      if (self.id === id) {
+                        var script = document.getElementById(id);
+                        script.parentNode.removeChild(script);
+                        console.log(result);
+                        if (result.this === 'succeeded') {
+                          if ('now' in result.with[0].content) {
+                            clearInterval(interval);
+                            document.getElementById('qr').src = 'https://placehold.co/150x150';
+                            document.getElementById('modal-js-qr').classList.remove('is-active');
+                          }
+                        }
+                      }
+                    });
+                  })
+                }, 5000);
               }
             }
           });
@@ -564,7 +583,9 @@
         <section class="modal-card-body">
           <p class="has-text-centered"><img id="qr" src="https://placehold.co/150x150" class="is-150by150" /></p>
           <p class="has-text-centered mt-4">Scan this QR code using Open e-ID mobile app<br />
-          You will need your one-time password (OTP) to confirm the import</p>
+          You will need your one-time password (OTP) to confirm the import<br />
+          This dialog will close automatically when the data is loaded on the mobile device<br />
+          QR code is only valid one time</p>
         </section>
         <footer class="modal-card-foot">
           <button class="button">Close</button>
