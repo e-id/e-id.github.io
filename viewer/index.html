@@ -154,9 +154,16 @@
           return;
         }
         var privateKey = KEYUTIL.getPEM(rsaKeypair.prvKeyObj, 'PKCS5PRV', utf8tohex(password));
-        var data = {};
+        var data = window.eIdData;
+        Object.keys(data).forEach(function(key) {
+          try {
+            data[key] = hextob64(KJUR.crypto.Cipher.encrypt(utf8tob64(data[key]), rsaKeypair.pubKeyObj, 'RSAOAEP'));
+          } catch(e) {
+            console.log(e); // TODO - chunk data as 117 (or less) bytes length parts
+            delete data[key]
+          }
+        });
         data.private_key = privateKey;
-        data.content = hextob64(KJUR.crypto.Cipher.encrypt(JSON.stringify(window.eIdData), rsaKeypair.pubKeyObj, 'RSAOAEP'));
         jsonp('https://dweet.io/dweet/for/' + uuidv4(), data, function (result) {
           var self = this;
           Object.keys(window.jsonpCallbacks).forEach(function(id) {
