@@ -25,3 +25,7 @@ The e-ID viewer is a full-featured web app with the following features:
 The viewer uses:
 
 * Bulma https://bulma.io/
+* Placehold https://placehold.co/
+* jsrsasign https://github.com/kjur/jsrsasign/
+* QR Code Generator https://goqr.me/
+* Dweet https://dweet.io/

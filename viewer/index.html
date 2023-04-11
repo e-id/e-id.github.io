@@ -2,6 +2,7 @@
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/10.8.1/jsrsasign-all-min.js" integrity="sha512-73OlrsoS/KfYN4QTMBYwYYXw7Ea3XRpMLqR/rW5ijMdSQhmKoR4EgmKPXUgrx3ud8e5jdUd/jwujJ6veioLKPA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script type="text/javascript" src="https://e-id.github.io/open-eid-helper.js"></script>
     <title>Open e-ID viewer v0.0.1</title>
     <style content="text/css">
@@ -96,6 +97,9 @@
     </style>
     <script type="text/javascript">
 
+      window.eIdData = { now: new Date().getTime() };
+      window.jsonpCallbacks = {};
+
       function share() {
         const img = document.getElementById('photo');
         fetch(img.src).then(function(res) {
@@ -135,6 +139,51 @@
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
+      }
+
+      function uuidv4() {
+        return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, function(c) {
+          return (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16);
+        });
+      }
+
+      function qr() {
+        var rsaKeypair = KEYUTIL.generateKeypair('RSA', 1024);
+        var password = prompt('Choose a one-time password (OTP) to protect you data', new Date().getTime());
+        if (password === null || password === '') {
+          return;
+        }
+        var privateKey = KEYUTIL.getPEM(rsaKeypair.prvKeyObj, 'PKCS5PRV', utf8tohex(password));
+        var data = {};
+        data.private_key = privateKey;
+        data.content = hextob64(KJUR.crypto.Cipher.encrypt(JSON.stringify(window.eIdData), rsaKeypair.pubKeyObj, 'RSAOAEP'));
+        jsonp('https://dweet.io/dweet/for/' + uuidv4(), data, function (result) {
+          var self = this;
+          Object.keys(window.jsonpCallbacks).forEach(function(id) {
+            if (self.id === id) {
+              var script = document.getElementById(id);
+              script.parentNode.removeChild(script);
+              console.log(result);
+              if (result.this === 'succeeded') {
+                document.getElementById('qr').src = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + result.with.thing;
+              }
+            }
+          });
+        });
+      }
+
+      function jsonp(url, data, callback) {
+        var id = 'jsonp-' + new Date().getTime();
+        var jsonpUrl = new URL(url);
+        Object.keys(data).forEach(function(key) {
+          jsonpUrl.searchParams.set(key, data[key]);
+        });
+        jsonpUrl.searchParams.set('callback', `window.jsonpCallbacks['${id}'].fx`);
+        window.jsonpCallbacks[id] = { id: id, fx: callback };
+        var script = document.createElement('script');
+        script.setAttribute('id', id);
+        script.setAttribute('src', jsonpUrl.href);
+        document.body.appendChild(script);
       }
 
       window.eIdViewerDisplay = function(eid) {
@@ -226,6 +275,50 @@
         function getAll(selector) {
           return Array.prototype.slice.call(document.querySelectorAll(selector), 0);
         }
+
+        // Functions to open and close a modal
+        function openModal($el) {
+          $el.classList.add('is-active');
+        }
+
+        function closeModal($el) {
+          $el.classList.remove('is-active');
+        }
+
+        function closeAllModals() {
+          (document.querySelectorAll('.modal') || []).forEach(($modal) => {
+            closeModal($modal);
+          });
+        }
+
+        // Add a click event on buttons to open a specific modal
+        (document.querySelectorAll('.js-modal-trigger') || []).forEach(($trigger) => {
+          const modal = $trigger.dataset.target;
+          const $target = document.getElementById(modal);
+
+          $trigger.addEventListener('click', () => {
+            openModal($target);
+          });
+        });
+
+        // Add a click event on various child elements to close the parent modal
+        (document.querySelectorAll('.modal-background, .modal-close, .modal-card-head .delete, .modal-card-foot .button') || []).forEach(($close) => {
+          const $target = $close.closest('.modal');
+
+          $close.addEventListener('click', () => {
+            closeModal($target);
+          });
+        });
+
+        // Add a keyboard event to close all modals
+        document.addEventListener('keydown', (event) => {
+          const e = event || window.event;
+
+          if (e.keyCode === 27) { // Escape key
+            closeAllModals();
+          }
+        });
+
       });
 
     </script>
@@ -331,6 +424,9 @@
                           </a>
                           <a href="javascript:download();" class="dropdown-item">
                             Download
+                          </a>
+                          <a href="javascript:qr();" class="dropdown-item js-modal-trigger" data-target="modal-js-qr">
+                            Open e-ID mobile (QR code)
                           </a>
                           <hr class="dropdown-divider">
                           <a href="javascript:share();" class="dropdown-item">
@@ -448,6 +544,23 @@
           <li><a href="#certificates">Certificates</a></li>
           <li><a href="#log">Log</a></li>
         </ul>
+      </div>
+    </div>
+    <div class="modal" id="modal-js-qr">
+      <div class="modal-background"></div>
+      <div class="modal-card">
+        <header class="modal-card-head">
+          <p class="modal-card-title">Open e-ID mobile</p>
+          <button class="delete" aria-label="close"></button>
+        </header>
+        <section class="modal-card-body">
+          <p class="has-text-centered"><img id="qr" src="https://placehold.co/150x150" class="is-150by150" /></p>
+          <p class="has-text-centered mt-4">Scan this QR code using Open e-ID mobile app<br />
+          You will need your one-time password (OTP) to confirm the import</p>
+        </section>
+        <footer class="modal-card-foot">
+          <button class="button">Close</button>
+        </footer>
       </div>
     </div>
     <figure class="logo is-hidden">
