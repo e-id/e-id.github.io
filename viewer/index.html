@@ -174,12 +174,6 @@
               console.log(result);
               if (result.this === 'succeeded') {
                 document.getElementById('qr').src = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + result.with.thing;
-                // remove dweet by filling 5 empty dweets
-                jsonp('https://dweet.io/dweet/for/' + result.width.thing, { dummy: uuidv4() }, function (result) { console.log(result); });
-                jsonp('https://dweet.io/dweet/for/' + result.width.thing, { dummy: uuidv4() }, function (result) { console.log(result); });
-                jsonp('https://dweet.io/dweet/for/' + result.width.thing, { dummy: uuidv4() }, function (result) { console.log(result); });
-                jsonp('https://dweet.io/dweet/for/' + result.width.thing, { dummy: uuidv4() }, function (result) { console.log(result); });
-                jsonp('https://dweet.io/dweet/for/' + result.width.thing, { dummy: uuidv4() }, function (result) { console.log(result); });
               }
             }
           });
