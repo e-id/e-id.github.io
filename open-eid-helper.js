@@ -71,10 +71,7 @@ window.addEventListener('load', function() {
       var top = (screen.height / 2) - (h/2);
       window.moveTo(left, top);
       setTimeout(function() {
-        var pre = document.createElement('pre');
-        pre.innerText = JSON.stringify(result, eid, null, '  ');
-        document.body.appendChild(pre);
-        // window.close();
+        window.close();
       }, 2000);
     } else {
       if (url.searchParams.has('e-id-callback')) {
@@ -94,6 +91,7 @@ window.addEventListener('storage', function(event) {
     window.openEidHelperCallbacks.forEach(function(callback, index) {
       callback.callback(JSON.parse(event.newValue));
       delete window.openEidHelperCallbacks[index];
+      window.localStorage.setItem('e-id-data', null);
     })
     window.focus();
   }

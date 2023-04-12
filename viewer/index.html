@@ -352,9 +352,10 @@
             });
           }
           var attr = el.dataset.eidAttr ?? 'value'
-          el.hasAttribute(attr) ? el.setAttribute(attr, text) : el.innerText = text;
+          try { el.hasAttribute(attr) ? el.setAttribute(attr, text) : el.innerText = text; } catch(e) { console.log(e); }
         });
-        window.localStorage.setItem('e-id-data', null);
+        tab(document.getElementById('tab-identity'));
+        location.hash = '#identity';
         setTimeout(function() {
           document.body.scrollTo(0, 0);
         }, 100);
@@ -381,21 +382,15 @@
         });
         var result = decodeURIComponent(new String(location.hash).substring(1));
         var json = null;
-        try { json = JSON.parse(result); } catch(e) { json = null; }
+        try { json = JSON.parse(result); } catch(e) { console.log(e); json = null; }
         if (json !== null && typeof json === 'object') {
-          // window.eIdViewerDisplay(json);
-          // result = '';
           return;
         }
         if (result === '') {
           result = 'identity';
           location.hash = '#' + result;
         }
-        document.querySelectorAll('#' + result + '-tab').forEach(function(el) {
-          if (el !== null) {
-            tab(el);
-          }
-        });
+        tab(document.getElementById(result + '-tab') || null);
       });
 
       window.addEventListener('blur', function(event) {
