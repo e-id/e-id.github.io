@@ -71,7 +71,10 @@ window.addEventListener('load', function() {
       var top = (screen.height / 2) - (h/2);
       window.moveTo(left, top);
       setTimeout(function() {
-        window.close();
+        var pre = document.createElement('pre');
+        pre.innerText = JSON.stringify(result, eid, null, '  ');
+        document.body.appendChild(pre);
+        // window.close();
       }, 2000);
     } else {
       if (url.searchParams.has('e-id-callback')) {
