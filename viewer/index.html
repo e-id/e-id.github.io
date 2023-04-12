@@ -163,13 +163,17 @@
           return;
         }
         var privateKey = KEYUTIL.getPEM(rsaKeypair.prvKeyObj, 'PKCS5PRV', utf8tohex(password));
-        var data = window.eIdData;
+        var data = {};
+        Object.keys(window.eIdData).forEach(function(key) {
+          data[key] = window.eIdData[key];
+        });
+        var moreData = [];
+        var moreIndex = 0;
         Object.keys(data).forEach(function(key) {
           try {
-            data[key] = hextob64(KJUR.crypto.Cipher.encrypt(utf8tohex(data[key]), rsaKeypair.pubKeyObj, 'RSAOAEP'));
+            data[key] = hextob64(KJUR.crypto.Cipher.encrypt(data[key], rsaKeypair.pubKeyObj, 'RSAOAEP'));
           } catch(e) {
-            // chunks ; TODO - send 5 dweets
-            const chunks = chunkSplit(utf8tohex(data[key]), 80, ',').split(',');
+            const chunks = chunkSplit(data[key], 80, '~').split('~');
             chunks.pop();
             const values = [];
             chunks.forEach(function(chunk) {
@@ -178,19 +182,72 @@
             data[key] = values;
           }
         });
-        var certKeys = Object.keys(data).filter((key) => key.includes('cert_'))
-        var dataKeys = Object.keys(data).filter((key) => key.includes('data'))
-        var fileKeys = Object.keys(data).filter((key) => key.includes('file'))
-        let json = JSON.stringify(data);
-        while (json.length > 8192) {
-          var key = certKeys.length > 0 ? certKeys.shift() : dataKeys.length > 0 ? dataKeys.shift() : fileKeys.length > 0 ? fileKeys.shift() : undefined;
+        var certKeys = Object.keys(data).filter((key) => key.includes('cert_'));
+        var dataKeys = Object.keys(data).filter((key) => key.includes('data'));
+        var fileKeys = Object.keys(data).filter((key) => key.includes('file'));
+        while (this.dataUrlLength(data) > 6400) {
+          var key = certKeys.length > 0 ? certKeys.shift() : (dataKeys.length > 0 ? dataKeys.shift() : (fileKeys.length > 0 ? fileKeys.shift() : undefined));
+          console.log(`Remove ${key} from data`);
+          var moreKey = '';
+          var moreValue = '';
           if (typeof key !== 'undefined') {
-            delete data[key];
+            moreKey = key;
           } else {
-            data.pop()
+            moreKey = Object.keys(data).pop();
           }
-          json = JSON.stringify(data);
+          moreValue = data[moreKey];
+          delete data[moreKey];
+          moreData[moreKey] = moreValue;
         }
+        var certKeys = Object.keys(moreData).filter((key) => key.includes('cert_'));
+        var dataKeys = Object.keys(moreData).filter((key) => key.includes('data'));
+        while (this.dataUrlLength(moreData) > 6400 * 4) {
+          var key = certKeys.length > 0 ? certKeys.shift() : (dataKeys.length > 0 ? dataKeys.shift() : undefined);
+          console.log(`Remove ${key} from moreData`);
+          if (typeof key !== 'undefined') {
+            delete moreData[key];
+          } else {
+            delete moreData[Object.keys(moreData).pop()];
+          }
+        }
+        console.log(Object.keys(data), Object.keys(moreData));
+        var dweets = [];
+        var dweetIndex = 0;
+        Object.keys(moreData).reverse().forEach(function(key) {
+          if (typeof dweets[dweetIndex] === 'undefined') {
+            dweets[dweetIndex] = {};
+          }
+          if (typeof moreData[key] === 'object') {
+            if (typeof dweets[dweetIndex][key] == 'undefined') {
+              dweets[dweetIndex][key] = [];
+            }
+            moreData[key].forEach(function(value) {
+              dweets[dweetIndex][key].push(value);
+              if (dataUrlLength(dweets[dweetIndex]) > 6400) {
+                dweets[dweetIndex][key].pop();
+                dweetIndex++;
+                if (typeof dweets[dweetIndex] === 'undefined') {
+                  dweets[dweetIndex] = {};
+                }
+                if (typeof dweets[dweetIndex][key] == 'undefined') {
+                  dweets[dweetIndex][key] = [];
+                }
+                dweets[dweetIndex][key].push(value);
+              }
+            });
+          } else {
+            dweets[dweetIndex][key] = moreData[key];
+            if (dataUrlLength(dweets[dweetIndex]) > 6400) {
+              delete dweets[dweetIndex][key];
+              dweetIndex++;
+              if (typeof dweets[dweetIndex] === 'undefined') {
+                dweets[dweetIndex] = {};
+              }
+              dweets[dweetIndex][key] = moreData[key];
+            }
+          }
+        });
+        dweets = dweets.slice(0, 4);
         data.private_key = privateKey;
         document.getElementById('qr').src = 'https://placehold.co/150x150/00d1b2/ffffff/?text=Loading...';
         jsonp('https://dweet.io/dweet/for/' + uuidv4(), data, function (result) {
@@ -201,18 +258,30 @@
               script.parentNode.removeChild(script);
               console.log(result);
               if (result.this === 'succeeded') {
-                document.getElementById('qr').src = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&bgcolor=00d1b2&data=' + result.with.thing;
-                var interval = setInterval(function() {
+                window.dweetsInterval = setInterval(() => {
+                  if (dweets.length === 0) {
+                    document.getElementById('qr').src = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&bgcolor=00d1b2&data=' + result.with.thing;
+                    console.log('https://dweet.io/get/dweets/for/' + result.with.thing);
+                    clearInterval(window.dweetsInterval);
+                    delete window.dweetsInterval;
+                    return;
+                  }
+                  var dweet = dweets.shift();
+                  jsonp('https://dweet.io/dweet/for/' + result.with.thing, dweet, function (result) {
+                    console.log(result);
+                  });
+                }, 1250);
+                window.doneInterval = setInterval(function() {
                   jsonp('https://dweet.io/get/latest/dweet/for/' + result.with.thing, {}, function (result) {
                     var self = this;
                     Object.keys(window.jsonpCallbacks).forEach(function(id) {
                       if (self.id === id) {
                         var script = document.getElementById(id);
                         script.parentNode.removeChild(script);
-                        console.log(result);
                         if (result.this === 'succeeded') {
                           if ('now' in result.with[0].content) {
-                            clearInterval(interval);
+                            clearInterval(window.doneInterval);
+                            delete window.doneInterval;
                             document.getElementById('qr').src = 'https://placehold.co/150x150/00d1b2/ffffff';
                             document.getElementById('modal-js-qr').classList.remove('is-active');
                           }
@@ -225,6 +294,20 @@
             }
           });
         });
+      }
+
+      function dataUrlLength(data) {
+        var jsonpUrl = new URL('http://localhost');
+        Object.keys(data).forEach(function(key) {
+          if (typeof data[key] === 'object') {
+            Object.keys(data[key]).forEach(function(subkey) {
+              jsonpUrl.searchParams.set(key + '[' + subkey + ']', data[key][subkey]);
+            });
+          } else {
+            jsonpUrl.searchParams.set(key, data[key]);
+          }
+        });
+        return jsonpUrl.href.length;
       }
 
       function jsonp(url, data, callback) {
@@ -240,6 +323,7 @@
           }
         });
         jsonpUrl.searchParams.set('callback', `window.jsonpCallbacks['${id}'].fx`);
+        console.log(id, jsonpUrl.href.length);
         window.jsonpCallbacks[id] = { id: id, fx: callback };
         var script = document.createElement('script');
         script.setAttribute('id', id);
@@ -271,6 +355,9 @@
           el.hasAttribute(attr) ? el.setAttribute(attr, text) : el.innerText = text;
         });
         window.localStorage.setItem('e-id-data', null);
+        setTimeout(function() {
+          document.body.scrollTo(0, 0);
+        }, 100);
       }
 
       function tab(el) {
@@ -568,7 +655,7 @@
                 <div class="content">
                   <aside class="menu">
                     <p class="menu-label">
-                      Root
+                      <a href="javascript:;" data-eid="javascript:window.open('https://lapo.it/asn1js/#%cert_root_file%');" data-eid-attr="href">Root</a>
                     </p>
                     <ul class="menu-list">
                       <li><a href="javascript:;" data-eid="javascript:window.open('https://lapo.it/asn1js/#%cert_ca_file%');" data-eid-attr="href">CA</a></li>
