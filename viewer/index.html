@@ -281,6 +281,9 @@
         document.querySelector('.tabs .is-active')?.classList.remove('is-active');
         el.classList.add('is-active');
         el.querySelector('a').classList.add('has-background-primary', 'has-border-primary');
+        setTimeout(function() {
+          document.body.scrollTo(0, 0);
+        }, 100);
       }
 
       window.addEventListener('DOMContentLoaded', function() {
@@ -292,9 +295,10 @@
         var result = decodeURIComponent(new String(location.hash).substring(1));
         var json = null;
         try { json = JSON.parse(result); } catch(e) { json = null; }
-        if (typeof json === 'object') {
-          window.eIdViewerDisplay(json);
-          result = '';
+        if (json !== null && typeof json === 'object') {
+          // window.eIdViewerDisplay(json);
+          // result = '';
+          return;
         }
         if (result === '') {
           result = 'identity';
@@ -398,6 +402,10 @@
     </script>
   </head>
   <body>
+    <a name="identity"></a>
+    <a name="card"></a>
+    <a name="certificates"></a>
+    <a name="log"></a>
     <div class="container pt-4">
       <div id="content" class="content mt-6">
         <div id="identity" class="columns is-centered is-hidden">
@@ -412,8 +420,8 @@
                 <div class="content">
                   <div class="columns is-vcentered">
                     <div class="column is-narrow">
-                      <figure class="image is-140by200">
-                        <img id="photo" src="https://placehold.co/140x200" data-eid="data:image/jpeg;base64,%photo_file%"  data-eid-attr="src" />
+                      <figure class="image is-140by200" style="max-height: 50%;">
+                        <img id="photo" src="https://placehold.co/140x200" style="max-height: 50%;" data-eid="data:image/jpeg;base64,%photo_file%"  data-eid-attr="src" />
                       </figure>
                     </div>
                     <div class="column">
@@ -522,34 +530,30 @@
                 <div class="content">
                   <div class="columns is-vcentered is-mobile">
                     <div class="column">
-                      <table class="table is-borderless">
-                        <tbody>
-                          <tr>
-                            <th>Chip version</th>
-                            <td data-eid="carddata_appl_version"></td>
-                          </tr>
-                          <tr>
-                            <th>Card number</th>
-                            <td data-eid="card_number"></td>
-                          </tr>
-                          <tr>
-                            <th>Place of issue</th>
-                            <td data-eid="issuing_municipality"></td>
-                          </tr>
-                          <tr>
-                            <th>Chip number</th>
-                            <td data-eid="chip_number"></td>
-                          </tr>
-                          <tr>
-                            <th>Validity begin</th>
-                            <td data-eid="validity_begin_date"></td>
-                          </tr>
-                          <tr>
-                            <th>Validity end</th>
-                            <td data-eid="validity_end_date"></td>
-                          </tr>
-                        </tbody>
-                      </table>
+                      <div class="columns">
+                        <div class="column is-3 has-text-weight-bold">Chip version</div>
+                        <div class="column" data-eid="carddata_appl_version"></div>
+                      </div>
+                      <div class="columns">
+                        <div class="column is-3 has-text-weight-bold">Card number</div>
+                        <div class="column" data-eid="card_number"></div>
+                      </div>
+                      <div class="columns">
+                        <div class="column is-3 has-text-weight-bold">Place of issue</div>
+                        <div class="column" data-eid="issuing_municipality"></div>
+                      </div>
+                      <div class="columns">
+                        <div class="column is-3 has-text-weight-bold">Chip number</div>
+                        <div class="column" data-eid="chip_number"></div>
+                      </div>
+                      <div class="columns">
+                        <div class="column is-3 has-text-weight-bold">Validity begin</div>
+                        <div class="column" data-eid="validity_begin_date"></div>
+                      </div>
+                      <div class="columns">
+                        <div class="column is-3 has-text-weight-bold">Validity end</div>
+                        <div class="column" data-eid="validity_end_date"></div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -588,7 +592,7 @@
             <div class="card">
               <div class="card-content">
                 <div class="content">
-                  <pre data-eid="log_file"></pre>
+                  <pre data-eid="log_file" style="white-space: break-spaces !important;"></pre>
                   <div class="columns is-vcentered is-mobile">
                     <div class="column">
                       <table class="table is-borderless is-hidden">
@@ -611,8 +615,8 @@
           </div>
         </div>
       </div>
-      <div class="tabs is-toggle is-toggle-rounded mt-2 has-background-white" style="position: fixed; top: 0; left: 50%; transform: translate(-50%, 0);">
-        <ul class="ml-0">
+      <div class="tabs is-toggle is-toggle-rounded pt-2 pb-2" style="position: fixed; left: 0; top: 0; width: 100%; background-color: white !important;">
+        <ul class="ml-0 is-justify-content-center">
           <li id="identity-tab"><a href="#identity">Identity</a></li>
           <li id="card-tab"><a href="#card">Card</a></li>
           <li id="certificates-tab"><a href="#certificates">Certificates</a></li>
