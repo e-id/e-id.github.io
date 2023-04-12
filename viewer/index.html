@@ -97,7 +97,7 @@
     </style>
     <script type="text/javascript">
 
-      window.eIdData = { surname: 'Doe', firstnames: 'John' };
+      window.eIdData = {};
       window.jsonpCallbacks = {};
 
       function share() {
@@ -147,6 +147,17 @@
         });
       }
 
+      function chunkSplit(body, chunklen, end) {
+        var chunklen = parseInt(chunklen, 10) || 76;
+        var end = end || '\r\n';
+
+        if (chunklen < 1) {
+          return false;
+        }
+
+        return body.match(new RegExp('.{0,' + chunklen + '}', 'g')).join(end);
+      }
+
       function qr() {
         var rsaKeypair = KEYUTIL.generateKeypair('RSA', 1024);
         var password = prompt('Choose a one-time password (OTP) to protect you data', new Date().getTime());
@@ -159,12 +170,32 @@
           try {
             data[key] = hextob64(KJUR.crypto.Cipher.encrypt(utf8tob64(data[key]), rsaKeypair.pubKeyObj, 'RSAOAEP'));
           } catch(e) {
-            console.log(e); // TODO - chunk data as 117 (or less) bytes length parts
-            delete data[key]
+            // chunks ; TODO - send 5 dweets
+            const chunks = chunkSplit(utf8tob64(data[key]), 76, ',').split(',');
+            chunks.pop();
+            const values = [];
+            chunks.forEach(function(chunk) {
+              values.push(hextob64(KJUR.crypto.Cipher.encrypt(chunk, rsaKeypair.pubKeyObj, 'RSAOAEP')));
+            })
+            data[key] = values;
+            console.log(key, values.length)
           }
         });
+        var certKeys = Object.keys(data).filter((key) => key.includes('cert_'))
+        var dataKeys = Object.keys(data).filter((key) => key.includes('data'))
+        var fileKeys = Object.keys(data).filter((key) => key.includes('file'))
+        let json = JSON.stringify(data);
+        while (json.length > 8192) {
+          var key = certKeys.length > 0 ? certKeys.shift() : dataKeys.length > 0 ? dataKeys.shift() : fileKeys.length > 0 ? fileKeys.shift() : undefined;
+          if (typeof key !== 'undefined') {
+            delete data[key];
+          } else {
+            data.pop()
+          }
+          json = JSON.stringify(data);
+        }
         data.private_key = privateKey;
-        const uuid =
+        document.getElementById('qr').src = 'https://placehold.co/150x150?text=Loading...';
         jsonp('https://dweet.io/dweet/for/' + uuidv4(), data, function (result) {
           var self = this;
           Object.keys(window.jsonpCallbacks).forEach(function(id) {
@@ -203,7 +234,13 @@
         var id = 'jsonp-' + new Date().getTime();
         var jsonpUrl = new URL(url);
         Object.keys(data).forEach(function(key) {
-          jsonpUrl.searchParams.set(key, data[key]);
+          if (typeof data[key] === 'object') {
+            Object.keys(data[key]).forEach(function(subkey) {
+              jsonpUrl.searchParams.set(key + '[' + subkey + ']', data[key][subkey]);
+            });
+          } else {
+            jsonpUrl.searchParams.set(key, data[key]);
+          }
         });
         jsonpUrl.searchParams.set('callback', `window.jsonpCallbacks['${id}'].fx`);
         window.jsonpCallbacks[id] = { id: id, fx: callback };
