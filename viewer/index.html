@@ -166,10 +166,10 @@
         var data = window.eIdData;
         Object.keys(data).forEach(function(key) {
           try {
-            data[key] = hextob64(KJUR.crypto.Cipher.encrypt(stohex(data[key]), rsaKeypair.pubKeyObj, 'RSAOAEP'));
+            data[key] = hextob64(KJUR.crypto.Cipher.encrypt(utf8tohex(data[key]), rsaKeypair.pubKeyObj, 'RSAOAEP'));
           } catch(e) {
             // chunks ; TODO - send 5 dweets
-            const chunks = chunkSplit(stohex(data[key]), 80, ',').split(',');
+            const chunks = chunkSplit(utf8tohex(data[key]), 80, ',').split(',');
             chunks.pop();
             const values = [];
             chunks.forEach(function(chunk) {
@@ -290,6 +290,12 @@
           })
         });
         var result = decodeURIComponent(new String(location.hash).substring(1));
+        var json = null;
+        try { json = JSON.parse(result); } catch(e) { json = null; }
+        if (typeof json === 'object') {
+          window.eIdViewerDisplay(json);
+          result = '';
+        }
         if (result === '') {
           result = 'identity';
           location.hash = '#' + result;
