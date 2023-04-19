@@ -84,6 +84,9 @@ window.addEventListener('load', function() {
   } else {
     window.localStorage.setItem('e-id-data', null);
   }
+  setTimeout(function() {
+    window.localStorage.setItem('e-id-data', null);
+  }, 3000);
 });
 
 window.addEventListener('storage', function(event) {
