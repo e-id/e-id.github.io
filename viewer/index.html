@@ -342,10 +342,10 @@
         if (eid === null || typeof eid !== 'object') {
           return;
         }
-        console.log(eid);
         if (eid.cancel || 'error' in eid) {
-          return;
+          eid.logfile = json.stringify(eid, null, '  ');
         }
+        console.log(eid);
         window.eIdData = eid;
         var elements = document.querySelectorAll('[data-eid]');
         elements.forEach(function (el) {
@@ -371,6 +371,9 @@
         setTimeout(function() {
           document.body.scrollTo(0, 0);
         }, 100);
+        if (eid.cancel || 'error' in eid) {
+          tab(document.getElementById('log-tab'));
+        }
       }
 
       function tab(el) {
@@ -571,7 +574,7 @@
                     </div>
                   </div>
                   <p class="buttons is-centered">
-                    <a class="button is-large is-rounded is-primary" href="e-id://#" data-e-id-app="1" data-e-id-include="*" data-e-id-callback="eIdViewerDisplay">
+                    <a class="button is-large is-rounded is-primary" href="e-id://#" data-e-id-app="1" data-e-id-always="1" data-e-id-include="*" data-e-id-callback="eIdViewerDisplay">
                       <span class="icon is-medium" style="filter: invert(1)">
                         <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24" style="width: 2em; height: 2em; vertical-align: middle;">
                           <path d="M9.715 12c1.151 0 2-.849 2-2s-.849-2-2-2-2 .849-2 2 .848 2 2 2z"/>
