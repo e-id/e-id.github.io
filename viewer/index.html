@@ -663,18 +663,18 @@
                 <div class="content">
                   <aside class="menu">
                     <p class="menu-label">
-                      <a href="javascript:;" data-eid="javascript:if('%cert_root_file%'!='')window.open('https://lapo.it/asn1js/#%cert_root_file%');" data-eid-attr="href">Root</a>
+                      <a href="javascript:;" data-eid="javascript:var cert = '%cert_root_file%'; if(cert!='') window.open('https://lapo.it/asn1js/#' + cert);" data-eid-attr="href">Root</a>
                     </p>
                     <ul class="menu-list">
-                      <li><a href="javascript:;" data-eid="javascript:if('%cert_ca_file%'!='')window.open('https://lapo.it/asn1js/#%cert_ca_file%');" data-eid-attr="href">CA</a></li>
-                      <li><a href="javascript:;" data-eid="javascript:if('%cert_rn_file%'!='')window.open('https://lapo.it/asn1js/#%cert_rn_file%');" data-eid-attr="href">RRN</a></li>
+                      <li><a href="javascript:;" data-eid="javascript:var cert = '%cert_ca_file%'; if(cert!='') window.open('https://lapo.it/asn1js/#' + cert);" data-eid-attr="href">CA</a></li>
+                      <li><a href="javascript:;" data-eid="javascript:var cert = '%cert_rn_file%'; if(cert!='') window.open('https://lapo.it/asn1js/#' + cert);" data-eid-attr="href">RRN</a></li>
                     </ul>
                     <p class="menu-label">
                       Citizen
                     </p>
                     <ul class="menu-list">
-                      <li><a href="javascript:;" data-eid="javascript:if('%cert_authentication_file%'!='')window.open('https://lapo.it/asn1js/#%cert_authentication_file%');" data-eid-attr="href">Authentication</a></li>
-                      <li><a href="javascript:;" data-eid="javascript:if('%cert_signature_file%'!='')window.open('https://lapo.it/asn1js/#%cert_signature_file%');" data-eid-attr="href">Signature</a></li>
+                      <li><a href="javascript:;" data-eid="javascript:var cert = '%cert_authentication_file%'; if(cert!='') window.open('https://lapo.it/asn1js/#' + cert);" data-eid-attr="href">Authentication</a></li>
+                      <li><a href="javascript:;" data-eid="javascript:var cert = '%cert_signature_file%'; if(cert!='') window.open('https://lapo.it/asn1js/#' + cert);" data-eid-attr="href">Signature</a></li>
                     </ul>
                   </aside>
                 </div>
