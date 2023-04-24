@@ -18,12 +18,6 @@ window.openEidHelper = function() {
         });
         url = new URL(newUrl.href + (url.href.endsWith('#') ? '#' : ''));
       }
-      if (url.searchParams.has('e-id-callback')) {
-        var callback = url.searchParams.get('e-id-callback');
-        window.addEventListener(callback, function(event) {
-          window[callback](event.detail);
-        });
-      }
       el.setAttribute('href', url.href);
       el.addEventListener('click', function(e) {
         var url = new URL(e.target.closest('a').getAttribute('href'));
@@ -103,6 +97,12 @@ window.addEventListener('storage', function(event) {
       window.localStorage.setItem('e-id-data', null);
     })
     window.focus();
+  }
+});
+
+window.addEventListener('message', function(e) {
+  if (Object.keys(e.data).includes('callback')) {
+    window[e.data.callback](e.data.detail);
   }
 });
 
