@@ -2,7 +2,7 @@
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
     <title>e-ID Test</title>
-    <script type="text/javascript" src="https://e-id.github.io/open-eid-helper.js"></script>
+    <script type="text/javascript" src="open-eid-helper.js"></script>
     <script type="text/javascript">
 
       window.eIdTest = function(result) {
@@ -13,7 +13,7 @@
     </script>
   </head>
   <body>
-    <a href="e-id://#" data-e-id-hidden="1" data-e-id-include="*" data-e-id-callback="eIdTest">Click here to test (using hidden window & localStorage)</a><hr />
+    <a href="e-id://#" data-e-id-hidden="1" data-e-id-always="1" data-e-id-include="*" data-e-id-callback="eIdTest">Click here to test (using hidden window & localStorage)</a><hr />
     <pre id="result" style="background-color: lightgray;"></pre>
   </body>
 </html>
